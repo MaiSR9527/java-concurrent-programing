@@ -24,17 +24,17 @@ public class WaitNotifyPrint01 {
             }
         }).start();
 
-        new Thread(() -> {
-            for (int i = 0; i < 10; i++) {
-                counter.incr();
-            }
-        }).start();
-
-        new Thread(() -> {
-            for (int i = 0; i < 10; i++) {
-                counter.desc();
-            }
-        }).start();
+//        new Thread(() -> {
+//            for (int i = 0; i < 10; i++) {
+//                counter.incr();
+//            }
+//        }).start();
+//
+//        new Thread(() -> {
+//            for (int i = 0; i < 10; i++) {
+//                counter.desc();
+//            }
+//        }).start();
 
 //        new Thread(evenOdd100::print).start();
 //
