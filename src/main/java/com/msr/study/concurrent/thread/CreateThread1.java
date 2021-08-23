@@ -9,6 +9,7 @@ package com.msr.study.concurrent.thread;
 public class CreateThread1 extends Thread {
     @Override
     public void run() {
+        System.out.println("thread state: " + Thread.currentThread().getState());
         System.out.println("thread run by extends Thread");
     }
 

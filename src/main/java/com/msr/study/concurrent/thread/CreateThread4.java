@@ -1,6 +1,5 @@
 package com.msr.study.concurrent.thread;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
@@ -13,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 public class CreateThread4 {
     public static void main(String[] args) {
         FutureTask<Integer> task = new FutureTask<>(() -> {
-            System.out.println(Thread.currentThread().getName()+" start");
-            TimeUnit.SECONDS.sleep(1);
-            System.out.println(Thread.currentThread().getName()+" end");
+            System.out.println(Thread.currentThread().getName() + " start");
+            TimeUnit.SECONDS.sleep(3);
+            System.out.println(Thread.currentThread().getName() + " end");
             return 1 + 1;
         });
 
