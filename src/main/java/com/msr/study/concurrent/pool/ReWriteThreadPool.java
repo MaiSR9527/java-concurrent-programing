@@ -31,12 +31,18 @@ public class ReWriteThreadPool {
         }
     }
 
-    static class MyThreadPoolExecutor extends ThreadPoolExecutor{
+    static class MyThreadPoolExecutor extends ThreadPoolExecutor {
 
         public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
         }
 
+        /**
+         * 线程开始执行时调用的钩子
+         *
+         * @param t 要执行的线程
+         * @param r 要执行的任务
+         */
         @Override
         protected void beforeExecute(Thread t, Runnable r) {
             System.out.println("============before============");
@@ -44,15 +50,24 @@ public class ReWriteThreadPool {
             System.out.println(t.getThreadGroup());
         }
 
+        /**
+         * 线程执行完成之后调用的钩子
+         *
+         * @param r 执行完成的任务
+         * @param t 是否发生异常，不为null则发生异常，可以做相应的处理
+         */
         @Override
         protected void afterExecute(Runnable r, Throwable t) {
             System.out.println("============after============");
             System.out.println(Thread.currentThread().getName());
-            if (t!=null){
+            if (t != null) {
                 System.out.println("having exception");
             }
         }
 
+        /**
+         * 线程池中止时调用的钩子，可以在此监控线程池是否挂了
+         */
         @Override
         protected void terminated() {
             System.out.println("============terminated============");
