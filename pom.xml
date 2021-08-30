@@ -6,7 +6,11 @@
 
     <groupId>com.mst.study</groupId>
     <artifactId>java-concurrent-programing</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>netty-study</module>
+    </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -48,6 +52,7 @@
             <artifactId>jol-core</artifactId>
             <version>0.11</version>
         </dependency>
+
     </dependencies>
 
     <build>
