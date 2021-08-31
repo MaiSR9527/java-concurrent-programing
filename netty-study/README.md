@@ -1,7 +1,15 @@
+---
+title: Netty源码剖析：Netty中服务端Channel的初始化过程
+date: 2021-08-30 22:44:35
+categories: java
+tags: Netty
+---
+
 # 一、服务端socket初始化
+
 ## 1.1 创建服务端Channel
 
-Netty是把Jdk的Channel再次封装成自己的Channel。那么开始探索Netty是怎么创建出Jdk的Channel的。那么就从一段常用的代码开始：
+Netty在创建Channel的时候是把Jdk的Channel再次封装成自己的Channel。那么开始探索Netty是怎么创建出Jdk的Channel的。那么就从一段常用的代码开始：
 
 ```java
 EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -372,13 +380,22 @@ public final void bind(final SocketAddress localAddress, final ChannelPromise pr
         invokeLater(new Runnable() {
             @Override
             public void run() {
-                // 触发Channel绑定事件
+                // 传播active事件
                 pipeline.fireChannelActive();
             }
         });
     }
 
     safeSetSuccess(promise);
+}
+```
+
+`isActive()`方法中的代码可见，在完成端口绑定之后，才会触发active事件，这时候才能去传播：`pipeline.fireChannelActive()`。
+
+```
+@Override
+public boolean isActive() {
+    return javaChannel().socket().isBound();
 }
 ```
 
@@ -395,3 +412,45 @@ protected void doBind(SocketAddress localAddress) throws Exception {
 }
 ```
 
+`pipeline.fireChannelActive()`对于Netty中时间传播，这里简单的讲一下，后面有机会再详述吧！
+
+DefaultChannelPipeline：
+
+```java
+@Override
+public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    // 传播active事件
+    ctx.fireChannelActive();
+	// 触发channel的read事件
+    readIfIsAutoRead();
+}
+```
+
+最终read事件是调用到了AbstractNioChannel.doBeginRead()
+
+```java
+@Override
+protected void doBeginRead() throws Exception {
+    // Channel.read() or ChannelHandlerContext.read() was called
+    // 在上面的doRegister()方法中：selectionKey = javaChannel().register(eventLoop().selector, 0, this);
+    // 此时interestOps=0
+    final SelectionKey selectionKey = this.selectionKey;
+    if (!selectionKey.isValid()) {
+        return;
+    }
+
+    readPending = true;
+
+    final int interestOps = selectionKey.interestOps();
+    if ((interestOps & readInterestOp) == 0) {  // 0&0 = 0
+        // 所以selectionKey的ops是0 而0对应的操作就是 OP_READ 服务端读取连接
+        selectionKey.interestOps(interestOps | readInterestOp);
+    }
+}
+```
+
+# 二、总结
+
+newChannel(创建Channel)   ===>  init()(初始化Channel，添加连接处理器)   ===>  register()(调用底层Jdk的方法注册selector)   ===>  diBind()(调用底层Jdk的方法进行端口绑定，传播active事件，触发channel的read事件)
+
+  
